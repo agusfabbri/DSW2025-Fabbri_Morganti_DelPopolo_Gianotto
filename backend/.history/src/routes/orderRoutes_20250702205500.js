@@ -8,9 +8,6 @@ const isAdmin = require('../middlewares/isAdmin');
 // Obtener todos los pedidos (solo admin)
 router.get('/',authenticate, isAdmin, orderController.getAllOrders);
 
-// Obtener pedidos del usuario 
-router.get('/my-orders', authenticate, orderController.getUserOrders);
-
 // Obtener pedido por ID (usuario dueño o admin)
 router.get('/:id', authenticate, orderController.getOrderById);
 
@@ -23,7 +20,8 @@ router.put('/:id',authenticate, isAdmin, orderController.updateOrder);
 // Borrar pedido (solo admin)
 router.delete('/:id',authenticate, isAdmin, orderController.deleteOrder);
 
-
+// Obtener pedidos del usuario 
+router.get('/my-orders', authenticate, orderController.getUserOrders);
 
 
 module.exports = router;
