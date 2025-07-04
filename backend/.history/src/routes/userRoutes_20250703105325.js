@@ -8,9 +8,6 @@ const isAdmin = require('../middlewares/isAdmin');
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 
-router.get('/profile', authenticate, userController.getProfile);
-router.put('/profile', authenticate, userController.updateProfile);
-
 // Perfil usuario (autenticado)
 router.put('/:id',authenticate,  userController.updateUser);
 router.delete('/:id', authenticate, userController.deleteUser);
@@ -20,9 +17,6 @@ router.get('/', authenticate, isAdmin, userController.getAllUsers);
 router.get('/:id',authenticate, isAdmin, userController.getUserById);
 
 
-
-
-
-
+router.put('/update', authenticate, userController.updateProfile);
 
 module.exports = router;

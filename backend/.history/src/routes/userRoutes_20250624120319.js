@@ -8,9 +8,6 @@ const isAdmin = require('../middlewares/isAdmin');
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 
-router.get('/profile', authenticate, userController.getProfile);
-router.put('/profile', authenticate, userController.updateProfile);
-
 // Perfil usuario (autenticado)
 router.put('/:id',authenticate,  userController.updateUser);
 router.delete('/:id', authenticate, userController.deleteUser);
@@ -18,11 +15,5 @@ router.delete('/:id', authenticate, userController.deleteUser);
 // Obtener usuarios (solo admin)
 router.get('/', authenticate, isAdmin, userController.getAllUsers);
 router.get('/:id',authenticate, isAdmin, userController.getUserById);
-
-
-
-
-
-
 
 module.exports = router;

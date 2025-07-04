@@ -125,17 +125,6 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const getProfile = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, { attributes: { exclude: ['password'] } });
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-    res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener perfil' });
-  }
-};
-
 const updateProfile = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -168,6 +157,4 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
-  updateProfile,
-  getProfile,
 };

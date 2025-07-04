@@ -37,7 +37,7 @@ const createOrder = async (req, res) => {
 //  Obtener todas las órdenes con relaciones
 const getAllOrders = async (req, res) => {
   try {
-    const { id, user, dateFrom, dateTo, product, minTotal, maxTotal, status } = req.query;
+    const { user, dateFrom, dateTo, product, minTotal, maxTotal, status } = req.query;
 
     const where = {};
     const include = [
@@ -53,10 +53,7 @@ const getAllOrders = async (req, res) => {
       }
     ];
 
-    if (id) {
-      where.id = parseInt(id);
-    }
-
+    // Filtros dinámicos
     if (status) {
       where.status = status;
     }
@@ -100,7 +97,6 @@ const getAllOrders = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener pedidos' });
   }
 };
-
 
 //  Obtener orden por ID
 const getOrderById = async (req, res) => {

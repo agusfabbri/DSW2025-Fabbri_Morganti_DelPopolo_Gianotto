@@ -125,42 +125,6 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const getProfile = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, { attributes: { exclude: ['password'] } });
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-    res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener perfil' });
-  }
-};
-
-const updateProfile = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  try {
-    const user = await User.findByPk(req.user.id);
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-
-    const updatedData = {
-      name: name || user.name,
-      email: email || user.email,
-    };
-
-    if (password) {
-      updatedData.password = await bcrypt.hash(password, 10);
-    }
-
-    await user.update(updatedData);
-
-    res.json({ message: 'Perfil actualizado correctamente', user });
-  } catch (error) {
-    console.error('Error al actualizar perfil:', error);
-    res.status(500).json({ message: 'Error al actualizar el perfil' });
-  }
-};
-
 module.exports = {
   registerUser,
   loginUser,
@@ -168,6 +132,4 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
-  updateProfile,
-  getProfile,
 };
