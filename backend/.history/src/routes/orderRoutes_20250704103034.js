@@ -6,7 +6,7 @@ const isAdmin = require('../middlewares/isAdmin');
 
 
 // Productos mas vendidos
-router.get('/productos-mas-vendidos', orderController.getTopSellingProducts);
+router.get('/productos-mas-vendidos', getTopSellingProducts);
 
 
 

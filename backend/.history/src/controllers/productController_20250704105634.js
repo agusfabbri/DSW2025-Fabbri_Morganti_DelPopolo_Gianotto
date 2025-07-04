@@ -96,15 +96,8 @@ const getTopSellingProducts = async (req, res) => {
       limit: 5,
       include: {
         model: Product,
-        attributes: [
-          'id',
-          'name',
-          'price',
-          ['image', 'imageUrl']  // renombrás 'image' a 'imageUrl'
-        ],
-        required: true
+        attributes: ['id', 'name', 'price', 'image']
       }
-      
     });
 
     res.json(topProducts);
@@ -113,7 +106,6 @@ const getTopSellingProducts = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
-
 
 module.exports = {
   getAllProducts,

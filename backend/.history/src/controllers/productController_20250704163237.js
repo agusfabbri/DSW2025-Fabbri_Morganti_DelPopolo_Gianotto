@@ -96,15 +96,9 @@ const getTopSellingProducts = async (req, res) => {
       limit: 5,
       include: {
         model: Product,
-        attributes: [
-          'id',
-          'name',
-          'price',
-          ['image', 'imageUrl']  // renombrás 'image' a 'imageUrl'
-        ],
-        required: true
+        attributes: ['id', 'name', 'price', 'image'],
+        required: true, // ← esto filtra los que no tengan producto asociado
       }
-      
     });
 
     res.json(topProducts);

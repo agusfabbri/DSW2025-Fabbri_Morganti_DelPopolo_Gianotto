@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const Category = require('../models/category');
-const { OrderProduct, Product } = require('../models');
+const { OrderProduct, Product, Sequelize } = require('../models');
 
 
 const getAllProducts = async (req, res) => {
@@ -91,20 +91,13 @@ const getTopSellingProducts = async (req, res) => {
         'productId',
         [Sequelize.fn('SUM', Sequelize.col('quantity')), 'totalVendidas']
       ],
-      group: ['productId', 'Product.id'],
+      group: ['productId'],
       order: [[Sequelize.fn('SUM', Sequelize.col('quantity')), 'DESC']],
-      limit: 5,
+      limit: 10,
       include: {
         model: Product,
-        attributes: [
-          'id',
-          'name',
-          'price',
-          ['image', 'imageUrl']  // renombrás 'image' a 'imageUrl'
-        ],
-        required: true
+        as: 'product'
       }
-      
     });
 
     res.json(topProducts);
@@ -113,7 +106,6 @@ const getTopSellingProducts = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
-
 
 module.exports = {
   getAllProducts,
