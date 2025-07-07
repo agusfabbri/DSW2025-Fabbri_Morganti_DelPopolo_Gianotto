@@ -24,6 +24,8 @@ Desde el lado del administrador (vendedor), el sistema permitirá gestionar el c
 ## Alcance Funcional 
 
 ### Alcance Mínimo
+
+
 |Req|Detalle|
 |:-|:-|
 |CRUD simple |1. CRUD Producto<br>2. CRUD Categoria<br>3. CRUD Usuario|
