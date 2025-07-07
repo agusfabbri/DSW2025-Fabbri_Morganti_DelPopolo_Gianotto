@@ -3,9 +3,9 @@ const { Order, User, Product } = require('../models');
 const OrderProducts = require('../models/orderProduct');
 const { Sequelize } = require('sequelize');
 
-
-
-
+const { Order, Product } = require('../models');
+const OrderProducts = require('../models/orderProduct');
+const { Op } = require('sequelize');
 
 const createOrder = async (req, res) => {
   try {
