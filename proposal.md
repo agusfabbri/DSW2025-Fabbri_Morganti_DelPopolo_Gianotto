@@ -9,8 +9,8 @@
 
 
 ### Repositorios
-* [fullstack app](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto)
-
+* [backend](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto/tree/backend-v2)
+* [frontend](https://github.com/leangianotto/-DSW2025-Fabbri_Morganti_DelPopolo_Gianotto-Frontend)
 
 ## Tema
 ### Descripción
