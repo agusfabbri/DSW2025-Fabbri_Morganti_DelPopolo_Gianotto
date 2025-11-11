@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const authenticate = require('../middlewares/authMiddleware');
+
 const isAdmin = require('../middlewares/isAdmin');
 
 // Registro y login (público)

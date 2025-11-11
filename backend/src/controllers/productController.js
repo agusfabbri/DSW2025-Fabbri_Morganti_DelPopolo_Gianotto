@@ -93,14 +93,16 @@ const getTopSellingProducts = async (req, res) => {
       ],
       group: ['productId', 'Product.id'],
       order: [[Sequelize.fn('SUM', Sequelize.col('quantity')), 'DESC']],
-      limit: 5,
+      limit: 8,
       include: {
         model: Product,
         attributes: [
           'id',
           'name',
+          'description',
+          'stock',
           'price',
-          ['image', 'imageUrl']  // renombrás 'image' a 'imageUrl'
+          ['image', 'imageUrl']  // renombro 'image' a 'imageUrl'
         ],
         required: true
       }

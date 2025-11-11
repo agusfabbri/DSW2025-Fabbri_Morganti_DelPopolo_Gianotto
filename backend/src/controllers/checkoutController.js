@@ -4,10 +4,7 @@ require("dotenv").config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
 
-/**
- * POST /api/checkout
- * body: { items: [{ productId:number, title:string, unit_price:number, quantity:number }], userId? }
- */
+
 exports.createStripeCheckout = async (req, res) => {
   try {
     const { items = [] } = req.body;
@@ -41,7 +38,7 @@ exports.createStripeCheckout = async (req, res) => {
       };
     });
 
-    // Metadata compacta: solo productId y quantity
+    
     const compact = items.map((i) => ({
       productId: Number(i.productId),
       quantity: Number(i.quantity) || 1,
@@ -63,18 +60,12 @@ exports.createStripeCheckout = async (req, res) => {
 
     return res.json({ url: session.url, sessionId: session.id });
   } catch (err) {
-    console.error("❌ Error creando sesión de Stripe:", err);
+    console.error(" Error creando sesión de Stripe:", err);
     res.status(500).json({ error: "No se pudo crear la sesión de pago" });
   }
 };
 
-/**
- * POST /api/checkout/confirm
- * body: { sessionId }
- * - Verifica en Stripe
- * - Crea la orden en `orders`
- * - Inserta renglones en `order_products` con `price_at_purchase`
- */
+
 exports.confirmStripeCheckout = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -130,7 +121,7 @@ exports.confirmStripeCheckout = async (req, res) => {
       {
         userId: userIdMeta ? Number(userIdMeta) : null,
         totalAmount,
-        status: "paid",
+        status: "pendiente",
       },
       { transaction: t }
     );
@@ -154,7 +145,7 @@ exports.confirmStripeCheckout = async (req, res) => {
     return res.json({ ok: true, orderId: order.id });
   } catch (err) {
     await t.rollback();
-    console.error("❌ Error confirmando pago:", err);
+    console.error(" Error confirmando pago:", err);
     res.status(500).json({ error: "No se pudo confirmar el pago" });
   }
 };

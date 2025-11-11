@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Ruta base 
 app.get('/', (req, res) => {
-  res.send('API de ecommerce funcionando 🚀');
+  res.send('API de ecommerce funcionando ');
 });
 
 // Rutas del proyecto
@@ -36,15 +36,15 @@ app.use('/api/checkout', checkoutRoutes);
 
 // Conexión a la base de datos
 sequelize.authenticate()
-  .then(() => console.log('✅ Conexión a la base de datos establecida'))
-  .catch(err => console.error('❌ Error de conexión:', err));
+  .then(() => console.log(' Conexión a la base de datos establecida'))
+  .catch(err => console.error(' Error de conexión:', err));
 
 sequelize.sync({ alter: true }) // solo para desarrollo
-  .then(() => console.log('🔄 Modelos sincronizados con la base de datos'))
-  .catch(err => console.error('❌ Error al sincronizar modelos:', err));
+  .then(() => console.log(' Modelos sincronizados con la base de datos'))
+  .catch(err => console.error(' Error al sincronizar modelos:', err));
 
 // Servidor escuchando
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+  console.log(` Servidor corriendo en puerto ${PORT}`);
 });
