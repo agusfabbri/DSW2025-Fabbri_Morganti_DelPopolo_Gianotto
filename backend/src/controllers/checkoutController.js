@@ -5,6 +5,9 @@ require("dotenv").config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
 
 
+// --------------------------------------------------------------------
+// 1) CREAR SESIÓN DE STRIPE CON VALIDACIONES DE ACTIVOS + STOCK
+// --------------------------------------------------------------------
 exports.createStripeCheckout = async (req, res) => {
   try {
     const { items = [] } = req.body;
@@ -14,34 +17,44 @@ exports.createStripeCheckout = async (req, res) => {
       return res.status(400).json({ error: "Debes enviar items válidos" });
     }
 
-    // Validar que cada item tenga productId válido
-    for (const it of items) {
-      if (!Number.isInteger(it.productId) || it.productId <= 0) {
-        return res.status(400).json({ error: "Cada item debe incluir productId válido" });
+    // Traer productos reales desde la base
+    const productIds = items.map(i => Number(i.productId));
+    const productosDB = await Product.findAll({ where: { id: productIds } });
+
+    // VALIDAR UNO POR UNO
+    for (const item of items) {
+      const prod = productosDB.find(p => p.id === item.productId);
+
+      if (!prod) {
+        return res.status(400).json({ error: `Producto con ID ${item.productId} no existe.` });
+      }
+
+      if (!prod.isActive) {
+        return res.status(400).json({
+          error: `El producto "${prod.name}" fue desactivado y ya no puede comprarse.`
+        });
+      }
+
+      if (prod.stock < item.quantity) {
+        return res.status(400).json({
+          error: `Stock insuficiente para "${prod.name}". Stock actual: ${prod.stock}`
+        });
       }
     }
 
-    // Line items para Stripe (USD)
-    const line_items = items.map((it) => {
-      const amount = Number(it.unit_price);
-      const qty = Number(it.quantity) || 1;
-      if (!isFinite(amount) || amount <= 0) {
-        throw new Error(`unit_price inválido para item: ${JSON.stringify(it)}`);
-      }
-      return {
-        price_data: {
-          currency: "usd",
-          product_data: { name: it.title || "Producto" },
-          unit_amount: Math.round(amount * 100), // centavos
-        },
-        quantity: qty,
-      };
-    });
+    // Line items Stripe
+    const line_items = items.map(it => ({
+      price_data: {
+        currency: "usd",
+        product_data: { name: it.title || "Producto" },
+        unit_amount: Math.round(Number(it.unit_price) * 100),
+      },
+      quantity: Number(it.quantity),
+    }));
 
-    
-    const compact = items.map((i) => ({
+    const compact = items.map(i => ({
       productId: Number(i.productId),
-      quantity: Number(i.quantity) || 1,
+      quantity: Number(i.quantity),
     }));
 
     const origin = process.env.FRONTEND_ORIGIN || "http://localhost:4200";
@@ -54,7 +67,7 @@ exports.createStripeCheckout = async (req, res) => {
       cancel_url: `${origin}/cart`,
       metadata: {
         userId: String(userId ?? ""),
-        orderItems: JSON.stringify(compact), // [{productId, quantity}]
+        orderItems: JSON.stringify(compact),
       },
     });
 
@@ -66,69 +79,90 @@ exports.createStripeCheckout = async (req, res) => {
 };
 
 
+
+// --------------------------------------------------------------------
+// 2) CONFIRMAR PAGO → VALIDAR ACTIVOS + STOCK ANTES DE CREAR LA ORDEN
+// --------------------------------------------------------------------
 exports.confirmStripeCheckout = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { sessionId } = req.body;
     if (!sessionId) return res.status(400).json({ error: "Falta sessionId" });
 
-    // 1) Recuperar sesión en Stripe
+    // Recuperar sesión de Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status !== "paid") {
       await t.rollback();
       return res.status(400).json({ error: "Pago no completado" });
     }
 
-    // 2) Items desde metadata
-    const userIdMeta = session.metadata?.userId ?? null;
+    // Items desde metadata
     let itemsMeta = [];
     try {
-      itemsMeta = JSON.parse(session.metadata?.orderItems || "[]"); // [{productId, quantity}]
-    } catch {
-      itemsMeta = [];
-    }
+      itemsMeta = JSON.parse(session.metadata?.orderItems || "[]");
+    } catch {}
+
     if (!Array.isArray(itemsMeta) || itemsMeta.length === 0) {
       await t.rollback();
       return res.status(400).json({ error: "No hay items para la orden" });
     }
 
-    // 3) Traer productos y validar que existan
-    const productIds = itemsMeta.map((i) => Number(i.productId)).filter(Boolean);
+    // Obtener productos reales
+    const productIds = itemsMeta.map(i => Number(i.productId));
     const products = await Product.findAll({ where: { id: productIds }, transaction: t });
-    const foundIds = new Set(products.map((p) => Number(p.id)));
-    const missing = productIds.filter((id) => !foundIds.has(id));
+
+    // Validación existencia
+    const foundIds = new Set(products.map(p => Number(p.id)));
+    const missing = productIds.filter(id => !foundIds.has(id));
     if (missing.length) {
       await t.rollback();
       return res.status(400).json({ error: `Productos inexistentes: ${missing.join(", ")}` });
     }
 
-    // 4) Calcular total y preparar líneas
+    // VALIDAR ACTIVOS + STOCK DE NUEVO
+    for (const item of itemsMeta) {
+      const prod = products.find(p => Number(p.id) === Number(item.productId));
+
+      if (!prod.isActive) {
+        await t.rollback();
+        return res.status(400).json({ error: `El producto "${prod.name}" fue desactivado.` });
+      }
+
+      if (prod.stock < item.quantity) {
+        await t.rollback();
+        return res.status(400).json({ error: `"${prod.name}" no tiene suficiente stock.` });
+      }
+    }
+
+    // Crear total y líneas
     let totalAmount = 0;
-    const orderLines = itemsMeta.map((i) => {
-      const p = products.find((px) => Number(px.id) === Number(i.productId));
+    const orderLines = itemsMeta.map(i => {
+      const p = products.find(px => Number(px.id) === Number(i.productId));
       const unit = Number(p.price);
-      const qty = Number(i.quantity) || 1;
+      const qty = Number(i.quantity);
+
       totalAmount += unit * qty;
+
       return {
-        productId: Number(i.productId),
+        productId: p.id,
         quantity: qty,
         price_at_purchase: unit,
       };
     });
 
-    // 5) Crear orden
+    // Crear orden
     const order = await Order.create(
       {
-        userId: userIdMeta ? Number(userIdMeta) : null,
+        userId: Number(session.metadata?.userId || null),
         totalAmount,
         status: "pendiente",
       },
       { transaction: t }
     );
 
-    // 6) Crear renglones en order_products
+    // Crear OrderProduct
     await Promise.all(
-      orderLines.map((l) =>
+      orderLines.map(l =>
         OrderProduct.create(
           {
             orderId: order.id,
@@ -140,6 +174,15 @@ exports.confirmStripeCheckout = async (req, res) => {
         )
       )
     );
+
+    // Restar stock
+    for (const item of itemsMeta) {
+      const prod = products.find(p => Number(p.id) === Number(item.productId));
+      await prod.update(
+        { stock: prod.stock - item.quantity },
+        { transaction: t }
+      );
+    }
 
     await t.commit();
     return res.json({ ok: true, orderId: order.id });

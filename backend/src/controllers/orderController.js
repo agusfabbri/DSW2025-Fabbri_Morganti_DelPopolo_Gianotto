@@ -29,6 +29,14 @@ const createOrder = async (req, res) => {
       if (!prod) {
         return res.status(404).json({ message: `Producto con ID ${item.productId} no encontrado` });
       }
+
+ //  Validación nueva: producto desactivado
+  if (!prod.isActive) {
+    return res.status(400).json({
+      message: `El producto "${prod.name}" fue desactivado y ya no puede comprarse.`
+    });
+  }
+
       if (prod.stock < item.quantity) {
         return res.status(400).json({ message: `Stock insuficiente para el producto ${prod.name}` });
       }
