@@ -5,9 +5,9 @@ require("dotenv").config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
 
 
-// --------------------------------------------------------------------
-// 1) CREAR SESIÓN DE STRIPE CON VALIDACIONES DE ACTIVOS + STOCK
-// --------------------------------------------------------------------
+// ====================================================================
+// 1) CREAR SESIÓN DE STRIPE — VALIDACIÓN DE PRODUCTOS + STOCK
+// ====================================================================
 exports.createStripeCheckout = async (req, res) => {
   try {
     const { items = [] } = req.body;
@@ -17,11 +17,11 @@ exports.createStripeCheckout = async (req, res) => {
       return res.status(400).json({ error: "Debes enviar items válidos" });
     }
 
-    // Traer productos reales desde la base
+    // Obtener productos de la BD
     const productIds = items.map(i => Number(i.productId));
     const productosDB = await Product.findAll({ where: { id: productIds } });
 
-    // VALIDAR UNO POR UNO
+    // Validaciones por producto
     for (const item of items) {
       const prod = productosDB.find(p => p.id === item.productId);
 
@@ -29,9 +29,9 @@ exports.createStripeCheckout = async (req, res) => {
         return res.status(400).json({ error: `Producto con ID ${item.productId} no existe.` });
       }
 
-      if (!prod.isActive) {
+      if (!prod.active) {
         return res.status(400).json({
-          error: `El producto "${prod.name}" fue desactivado y ya no puede comprarse.`
+          error: `El producto "${prod.name}" fue desactivado y no puede comprarse.`
         });
       }
 
@@ -66,12 +66,13 @@ exports.createStripeCheckout = async (req, res) => {
       success_url: `${origin}/compra-finalizada?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cart`,
       metadata: {
-        userId: String(userId ?? ""),
+        userId: userId ? String(userId) : "null",
         orderItems: JSON.stringify(compact),
       },
     });
 
     return res.json({ url: session.url, sessionId: session.id });
+
   } catch (err) {
     console.error(" Error creando sesión de Stripe:", err);
     res.status(500).json({ error: "No se pudo crear la sesión de pago" });
@@ -80,23 +81,26 @@ exports.createStripeCheckout = async (req, res) => {
 
 
 
-// --------------------------------------------------------------------
-// 2) CONFIRMAR PAGO → VALIDAR ACTIVOS + STOCK ANTES DE CREAR LA ORDEN
-// --------------------------------------------------------------------
+// ====================================================================
+// 2) CONFIRMAR PAGO — VERSION ARREGLADA CON userId SEGURO
+// ====================================================================
 exports.confirmStripeCheckout = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { sessionId } = req.body;
     if (!sessionId) return res.status(400).json({ error: "Falta sessionId" });
 
-    // Recuperar sesión de Stripe
+    // Obtener sesión Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (session.payment_status !== "paid") {
+
+    // Verificar pago correcto
+    const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
+    if (paymentIntent.status !== "succeeded") {
       await t.rollback();
-      return res.status(400).json({ error: "Pago no completado" });
+      return res.status(400).json({ error: "Pago aún no procesado por Stripe" });
     }
 
-    // Items desde metadata
+    // Obtener items desde metadata
     let itemsMeta = [];
     try {
       itemsMeta = JSON.parse(session.metadata?.orderItems || "[]");
@@ -107,11 +111,9 @@ exports.confirmStripeCheckout = async (req, res) => {
       return res.status(400).json({ error: "No hay items para la orden" });
     }
 
-    // Obtener productos reales
     const productIds = itemsMeta.map(i => Number(i.productId));
     const products = await Product.findAll({ where: { id: productIds }, transaction: t });
 
-    // Validación existencia
     const foundIds = new Set(products.map(p => Number(p.id)));
     const missing = productIds.filter(id => !foundIds.has(id));
     if (missing.length) {
@@ -119,11 +121,11 @@ exports.confirmStripeCheckout = async (req, res) => {
       return res.status(400).json({ error: `Productos inexistentes: ${missing.join(", ")}` });
     }
 
-    // VALIDAR ACTIVOS + STOCK DE NUEVO
+    // Validaciones
     for (const item of itemsMeta) {
       const prod = products.find(p => Number(p.id) === Number(item.productId));
 
-      if (!prod.isActive) {
+      if (!prod.active) {
         await t.rollback();
         return res.status(400).json({ error: `El producto "${prod.name}" fue desactivado.` });
       }
@@ -134,7 +136,7 @@ exports.confirmStripeCheckout = async (req, res) => {
       }
     }
 
-    // Crear total y líneas
+    // Calcular total
     let totalAmount = 0;
     const orderLines = itemsMeta.map(i => {
       const p = products.find(px => Number(px.id) === Number(i.productId));
@@ -150,10 +152,22 @@ exports.confirmStripeCheckout = async (req, res) => {
       };
     });
 
+    // ==============================================
+    // FIX DE userId (ANTES SE PONÍA 0 Y ROMPÍA TODO)
+    // ==============================================
+    let userId = session.metadata?.userId;
+
+    if (!userId || userId === "null" || userId === "undefined" || userId.trim() === "") {
+      userId = null;
+    } else {
+      userId = Number(userId);
+      if (isNaN(userId)) userId = null;
+    }
+
     // Crear orden
     const order = await Order.create(
       {
-        userId: Number(session.metadata?.userId || null),
+        userId, // <--- AHORA NUNCA ES 0
         totalAmount,
         status: "pendiente",
       },
@@ -161,19 +175,17 @@ exports.confirmStripeCheckout = async (req, res) => {
     );
 
     // Crear OrderProduct
-    await Promise.all(
-      orderLines.map(l =>
-        OrderProduct.create(
-          {
-            orderId: order.id,
-            productId: l.productId,
-            quantity: l.quantity,
-            price_at_purchase: l.price_at_purchase,
-          },
-          { transaction: t }
-        )
-      )
-    );
+    for (const l of orderLines) {
+      await OrderProduct.create(
+        {
+          orderId: order.id,
+          productId: l.productId,
+          quantity: l.quantity,
+          price_at_purchase: l.price_at_purchase,
+        },
+        { transaction: t }
+      );
+    }
 
     // Restar stock
     for (const item of itemsMeta) {
@@ -186,6 +198,7 @@ exports.confirmStripeCheckout = async (req, res) => {
 
     await t.commit();
     return res.json({ ok: true, orderId: order.id });
+
   } catch (err) {
     await t.rollback();
     console.error(" Error confirmando pago:", err);
