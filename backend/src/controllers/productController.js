@@ -98,10 +98,19 @@ const createProduct = async (req, res) => {
   try {
     const product = await Product.create({ ...req.body, active: true });
     res.status(201).json(product);
-  } catch (err) {
+    } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error al crear producto' });
+
+    // Si el backend detecta que el nombre ya existe
+    if (err.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({
+        error: "Ya existe un producto con ese nombre."
+      });
+    }
+
+    return res.status(500).json({ error: "Error al crear producto" });
   }
+  
 };
 
 // ===============================

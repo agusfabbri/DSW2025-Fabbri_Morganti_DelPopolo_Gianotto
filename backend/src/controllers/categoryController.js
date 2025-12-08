@@ -25,9 +25,17 @@ const createCategory = async (req, res) => {
   try {
     const category = await Category.create(req.body);
     res.status(201).json(category);
-  } catch (err) {
+    } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error al crear categoría' });
+
+    // Error por nombre duplicado
+    if (err.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({
+        error: "Ya existe una categoría con ese nombre."
+      });
+    }
+
+    return res.status(500).json({ error: "Error al crear categoría" });
   }
 };
 
