@@ -4,6 +4,9 @@
   "main": "src/index.js",
   "scripts": {
     "test": "vitest",
+    "test:unit": "cross-env NODE_ENV=test vitest run test/unit",
+    "test:integration": "cross-env NODE_ENV=test vitest run test/integration",
+    "test:all": "cross-env NODE_ENV=test vitest run test/unit test/integration",
     "test:watch": "vitest",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
