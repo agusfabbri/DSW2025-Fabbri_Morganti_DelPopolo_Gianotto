@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
+    "test:watch": "vitest",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
@@ -22,5 +23,11 @@
     "mysql2": "^3.14.1",
     "sequelize": "^6.32.1",
     "stripe": "^19.3.0"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "sqlite3": "^5.1.7",
+    "supertest": "^7.1.4",
+    "vitest": "^4.0.15"
   }
 }
