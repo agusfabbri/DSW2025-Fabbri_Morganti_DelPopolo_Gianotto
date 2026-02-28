@@ -11,6 +11,14 @@
 ### Repositorios
 * [fullstack app](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto)
 
+### Deploy
+* **Backend API:** [https://dsw2025-fabbri-morganti-delpopolo.onrender.com](https://dsw2025-fabbri-morganti-delpopolo.onrender.com)
+* **Frontend:** *(A completar cuando se suba el cliente)*
+
+#### Credenciales de Prueba (Para Corrección)
+* **Usuario Admin:** `admin@example.com`
+* **Contraseña:** `admin123`
+*(Reemplazar o confirmar estas credenciales según los seeders reales de la base de datos).*
 
 ## Tema
 ### Descripción
