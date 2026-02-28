@@ -23,7 +23,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mercadopago": "^2.8.0",
-    "mysql2": "^3.14.1",
+    "mysql2": "^3.18.2",
     "sequelize": "^6.32.1",
     "stripe": "^19.3.0"
   },
