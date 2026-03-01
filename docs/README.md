@@ -10,8 +10,14 @@ Bienvenido al directorio de documentación. Aquí se detallarán aspectos funcio
 2. **[Evidencia de Ejecución de Tests](./tests.md)**  
    Output de consola y reporte del estado 100% exitoso de la suite de tests automáticos (unitarios y de integración) utilizando Vitest.
 
-3. **[Guía de Despliegue (Deploy)](./deploy.md)**  
-   Instrucciones paso a paso sobre cómo subir el backend (Node.js) a Render y configurar una base de datos MySQL gratuita en Aiven.
-
-4. **[Propuesta Inicial](../proposal.md)**  
+3. **[Propuesta Inicial](../proposal.md)**  
    Propuesta sobre el alcance sugerido del trabajo práctico.
+
+4. **[Registro de Pull Requests](./prs.md)**  
+   Documentación del Pull Request principal de la entrega.
+
+5. **[Instrucciones de Instalación y Ejecución](../README.md#%EF%B8%8F-instrucciones-de-instalaci%C3%B3n-y-ejecuci%C3%B3n-backend)**  
+   Guía sobre cómo instalar y levantar el entorno de desarrollo local referenciada desde el documento raíz.
+
+6. **[Despliegue del Proyecto (Deploy)](https://dsw2025-fabbri-morganti-delpopolo.onrender.com)**  
+   Enlace a la API desplegada en producción.
