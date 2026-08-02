@@ -10,7 +10,9 @@ const User = sequelize.define('User', {
     },
   password: { type: DataTypes.STRING, allowNull: false },
   role: { type: DataTypes.STRING, defaultValue: 'user' } // 'user' o 'admin'
-}, { timestamps: false });
+}, { timestamps: false,
+   tableName: 'users',
+  freezeTableName: true});
 
 module.exports = User;
 
