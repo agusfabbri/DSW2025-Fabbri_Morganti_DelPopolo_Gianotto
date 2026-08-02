@@ -7,7 +7,9 @@ const Order = sequelize.define('Order', {
   status: { type: DataTypes.STRING, defaultValue: 'pendiente' }, // pendiente, enviado, entregado, cancelado
   totalAmount: { type: DataTypes.FLOAT, allowNull: false },
   
-}, { timestamps: true });
+}, { timestamps: true,
+   tableName: 'orders',
+  freezeTableName: true});
 
 
 
