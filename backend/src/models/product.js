@@ -17,6 +17,9 @@ const Product = sequelize.define('Product', {
     defaultValue: true 
   }
 
-}, { timestamps: false });
+}, { timestamps: false, 
+   tableName: 'products',
+  freezeTableName: true
+   });
 
 module.exports = Product;
