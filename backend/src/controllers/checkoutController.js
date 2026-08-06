@@ -57,7 +57,12 @@ exports.createStripeCheckout = async (req, res) => {
       quantity: Number(i.quantity),
     }));
 
-    const origin = process.env.FRONTEND_ORIGIN || "http://localhost:4200";
+    const originRaw = process.env.FRONTEND_ORIGIN || "http://localhost:4200";
+    let origin = originRaw;
+    // Asegurar que origin incluya el esquema (http:// o https://) requerido por Stripe
+    if (!/^https?:\/\//i.test(origin)) {
+      origin = `https://${origin}`;
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
