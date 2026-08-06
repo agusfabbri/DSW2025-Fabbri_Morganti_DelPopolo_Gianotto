@@ -59,9 +59,15 @@ exports.createStripeCheckout = async (req, res) => {
 
     const originRaw = process.env.FRONTEND_ORIGIN || "http://localhost:4200";
     let origin = originRaw;
-    // Asegurar que origin incluya el esquema (http:// o https://) requerido por Stripe
-    if (!/^https?:\/\//i.test(origin)) {
-      origin = `https://${origin}`;
+    // Detectar valores inválidos que podrían venir de una configuración como '*' o cadenas con encoding
+    if (originRaw === '*' || originRaw.includes('*') || originRaw.includes('%')) {
+      console.warn('WARN: FRONTEND_ORIGIN está configurado como "*" o contiene caracteres inválidos. Usando fallback http://localhost:4200. Por favor, configura FRONTEND_ORIGIN correctamente en producción.');
+      origin = 'http://localhost:4200';
+    } else {
+      // Asegurar que origin incluya el esquema (http:// o https://) requerido por Stripe
+      if (!/^https?:\/\//i.test(origin)) {
+        origin = `https://${origin}`;
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
