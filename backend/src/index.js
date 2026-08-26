@@ -4,11 +4,21 @@ const cors = require('cors');
 const { sequelize } = require('./models');
 
 const app = express();
+const allowedOrigins = [
+  process.env.FRONTEND_ORIGIN || 'http://localhost:4200',
+  'https://dsw2025-fabbri-morganti-delpopolo.onrender.com',
+];
 
 // Configurar CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN || 'http://localhost:4200',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Origen no permitido por CORS'));
+    },
   })
 );
 
