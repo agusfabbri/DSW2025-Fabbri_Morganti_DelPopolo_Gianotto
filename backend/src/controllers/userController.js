@@ -57,6 +57,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Captcha inválido' });
     }
 
+
     // Login normal
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(400).json({ message: 'Credenciales inválidas' });
@@ -83,7 +84,7 @@ const loginUser = async (req, res) => {
 
   } catch (error) {
     console.error(error.response?.data || error.message);
-    res.status(500).json({ message: 'Error al iniciar sesión' });
+    res.status(500).json({ message: 'Sitio no disponible. Intente más tarde.' });
   }
 };
 
