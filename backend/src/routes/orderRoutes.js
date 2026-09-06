@@ -3,6 +3,10 @@ const router = express.Router();
 const orderController = require('../controllers/orderController');
 const authenticate = require('../middlewares/authMiddleware');
 const isAdmin = require('../middlewares/isAdmin');
+const canAccessOrder = require('../middlewares/canAccessOrder');
+const validateCreateOrder = require('../middlewares/validateCreateOrder');
+const validateUpdateOrder = require('../middlewares/validateUpdateOrder');
+const validateParamId = require('../middlewares/validateParamId');
 
 
 // Productos mas vendidos
@@ -17,16 +21,16 @@ router.get('/',authenticate, isAdmin, orderController.getAllOrders);
 router.get('/my-orders', authenticate, orderController.getUserOrders);
 
 // Obtener pedido por ID (usuario dueño o admin)
-router.get('/:id', authenticate, orderController.getOrderById);
+router.get('/:id', authenticate, validateParamId, canAccessOrder, orderController.getOrderById);
 
 // Crear pedido (usuario autenticado)
-router.post('/', authenticate, orderController.createOrder);
+router.post('/', authenticate, validateCreateOrder, orderController.createOrder);
 
 // Actualizar estado del pedido (solo admin)
-router.put('/:id',authenticate, isAdmin, orderController.updateOrder);
+router.put('/:id', authenticate, validateParamId, isAdmin, validateUpdateOrder, orderController.updateOrder);
 
 // Borrar pedido (solo admin)
-router.delete('/:id',authenticate, isAdmin, orderController.deleteOrder);
+router.delete('/:id', authenticate, validateParamId, isAdmin, orderController.deleteOrder);
 
 
 

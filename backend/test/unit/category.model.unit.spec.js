@@ -20,7 +20,7 @@ describe('Category model (unit)', () => {
         expect(Category.rawAttributes).toHaveProperty('id');
         expect(Category.rawAttributes).toHaveProperty('name');
         expect(Category.rawAttributes.name.allowNull).toBe(false); //no debería permitir nombre nulo
-        expect(Category.rawAttributes.name.unique).toBeTruthy; //nombre debería ser único
+        expect(Category.rawAttributes.name.unique).toBeTruthy(); //nombre debería ser único
     });
     it('debería crear una categoría válida', async () => {
         const cat = await Category.create({ name: 'Electrónica' });

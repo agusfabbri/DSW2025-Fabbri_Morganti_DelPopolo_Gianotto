@@ -206,11 +206,7 @@ const getTopSellingProducts = async (req, res) => {
 // ===============================
 const getProductsByIds = async (req, res) => {
   try {
-    const ids = req.query.ids?.split(',').map(id => Number(id));
-
-    if (!ids || ids.length === 0) {
-      return res.status(400).json({ message: 'No se proporcionaron IDs' });
-    }
+    const ids = req.query.ids.split(',').map(id => Number(id));
 
     const products = await Product.findAll({
       where: { id: ids }

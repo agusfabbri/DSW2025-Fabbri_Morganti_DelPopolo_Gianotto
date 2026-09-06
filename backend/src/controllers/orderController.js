@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
-const { Order, User, Product } = require('../models');
+const { sequelize, Order, User, Product } = require('../models');
 const OrderProducts = require('../models/orderProduct');
+const { validateOrderProducts } = require('../services/orderService');
 const { Sequelize } = require('sequelize');
 
 
@@ -8,39 +9,21 @@ const { Sequelize } = require('sequelize');
 
 
 const createOrder = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const userId = req.user.id;
     const { totalAmount, items } = req.body;
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ message: 'El pedido debe tener al menos un producto.' });
+    let productosDB;
+    try {
+      productosDB = await validateOrderProducts(items, t);
+    } catch (error) {
+      await t.rollback();
+      return res.status(error.status || 400).json({ message: error.message });
     }
 
     // Creo orden
-    const order = await Order.create({ userId, totalAmount });
-
-    // Obtener productos del carrito
-    const productIds = items.map(item => item.productId);
-    const productosDB = await Product.findAll({ where: { id: { [Op.in]: productIds } } });
-
-    // Valido stock suficiente s
-    for (const item of items) {
-      const prod = productosDB.find(p => p.id === item.productId);
-      if (!prod) {
-        return res.status(404).json({ message: `Producto con ID ${item.productId} no encontrado` });
-      }
-
- //  Validación nueva: producto desactivado
-  if (!prod.isActive) {
-    return res.status(400).json({
-      message: `El producto "${prod.name}" fue desactivado y ya no puede comprarse.`
-    });
-  }
-
-      if (prod.stock < item.quantity) {
-        return res.status(400).json({ message: `Stock insuficiente para el producto ${prod.name}` });
-      }
-    }
+    const order = await Order.create({ userId, totalAmount }, { transaction: t });
 
     // Preparar productos para crear en OrderProducts con precio
     const orderProductItems = items.map(item => {
@@ -53,16 +36,18 @@ const createOrder = async (req, res) => {
       };
     });
 
-    
-    await OrderProducts.bulkCreate(orderProductItems);
+
+    await OrderProducts.bulkCreate(orderProductItems, { transaction: t });
 
     // Actualizar stock de cada producto
     for (const item of items) {
       const prod = productosDB.find(p => p.id === item.productId);
       if (prod) {
-        await prod.update({ stock: prod.stock - item.quantity });
+        await prod.update({ stock: prod.stock - item.quantity }, { transaction: t });
       }
     }
+
+    await t.commit();
 
     res.status(201).json({
       message: 'Pedido creado con éxito',
@@ -70,6 +55,7 @@ const createOrder = async (req, res) => {
       productos: orderProductItems,
     });
   } catch (err) {
+    await t.rollback();
     console.error('Error en createOrder:', err);
     res.status(500).json({ message: 'Error al crear pedido', error: err.message });
   }
@@ -166,11 +152,6 @@ const getOrderById = async (req, res) => {
       return res.status(404).json({ message: 'Pedido no encontrado' });
     }
 
-    // Si el usuario autenticado NO es el dueño del pedido Y no es admin, rechazar
-    if (order.userId !== req.user.id && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'No tienes permiso para ver este pedido' });
-    }
-
     res.json(order);
   } catch (err) {
     console.error('Error al obtener pedido por ID:', err);
@@ -186,9 +167,6 @@ const updateOrder = async (req, res) => {
     if (!order) return res.status(404).json({ message: 'Pedido no encontrado' });
 
     const { status } = req.body;
-    if (!['pendiente', 'enviado', 'entregado', 'cancelado'].includes(status)) {
-      return res.status(400).json({ message: 'Estado inválido' });
-    }
 
     await order.update({ status });
     res.json(order);
@@ -237,7 +215,7 @@ const getUserOrders = async (req, res) => {
 };
 
 
-const getTopSellingProducts= async (req, res) => {
+const getTopSellingProducts = async (req, res) => {
   try {
     const productos = await OrderProduct.findAll({
       attributes: [

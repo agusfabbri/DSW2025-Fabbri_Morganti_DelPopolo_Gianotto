@@ -31,34 +31,9 @@ const registerUser = async (req, res) => {
 
 // Login
 const loginUser = async (req, res) => {
-  
+  const { email, password } = req.body;
 
-
-  const { email, password, captchaToken } = req.body;
-
-  
   try {
-    if (!captchaToken) {
-      return res.status(400).json({ message: 'Captcha requerido' });
-    }
-
-    const verificationResponse = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify`,
-      null,
-      {
-        params: {
-          secret: process.env.RECAPTCHA_SECRET,  // ✅ Usar solo esta
-          response: captchaToken                 // ✅ Correcto
-        }
-      }
-    );
-
-    if (!verificationResponse.data.success) {
-      return res.status(400).json({ message: 'Captcha inválido' });
-    }
-
-
-    // Login normal
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(400).json({ message: 'Credenciales inválidas' });
 
@@ -83,8 +58,8 @@ const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ message: 'Sitio no disponible. Intente más tarde.' });
+    console.error(error.message);
+    res.status(500).json({ message: 'Error interno del servidor. Intente más tarde.' });
   }
 };
 

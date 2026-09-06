@@ -1,5 +1,6 @@
 const Stripe = require("stripe");
 const { sequelize, Order, Product, OrderProduct } = require("../models");
+const { validateOrderProducts } = require("../services/orderService");
 require("dotenv").config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
@@ -13,33 +14,11 @@ exports.createStripeCheckout = async (req, res) => {
     const { items = [] } = req.body;
     const userId = req.user?.id || req.body.userId || null;
 
-    if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: "Debes enviar items válidos" });
-    }
-
-    // Obtener productos de la BD
-    const productIds = items.map(i => Number(i.productId));
-    const productosDB = await Product.findAll({ where: { id: productIds } });
-
-    // Validaciones por producto
-    for (const item of items) {
-      const prod = productosDB.find(p => p.id === item.productId);
-
-      if (!prod) {
-        return res.status(400).json({ error: `Producto con ID ${item.productId} no existe.` });
-      }
-
-      if (!prod.active) {
-        return res.status(400).json({
-          error: `El producto "${prod.name}" fue desactivado y no puede comprarse.`
-        });
-      }
-
-      if (prod.stock < item.quantity) {
-        return res.status(400).json({
-          error: `Stock insuficiente para "${prod.name}". Stock actual: ${prod.stock}`
-        });
-      }
+    let productosDB;
+    try {
+      productosDB = await validateOrderProducts(items);
+    } catch (err) {
+      return res.status(err.status || 400).json({ error: err.message });
     }
 
     // Line items Stripe
@@ -122,29 +101,12 @@ exports.confirmStripeCheckout = async (req, res) => {
       return res.status(400).json({ error: "No hay items para la orden" });
     }
 
-    const productIds = itemsMeta.map(i => Number(i.productId));
-    const products = await Product.findAll({ where: { id: productIds }, transaction: t });
-
-    const foundIds = new Set(products.map(p => Number(p.id)));
-    const missing = productIds.filter(id => !foundIds.has(id));
-    if (missing.length) {
+    let products;
+    try {
+      products = await validateOrderProducts(itemsMeta, t);
+    } catch (err) {
       await t.rollback();
-      return res.status(400).json({ error: `Productos inexistentes: ${missing.join(", ")}` });
-    }
-
-    // Validaciones
-    for (const item of itemsMeta) {
-      const prod = products.find(p => Number(p.id) === Number(item.productId));
-
-      if (!prod.active) {
-        await t.rollback();
-        return res.status(400).json({ error: `El producto "${prod.name}" fue desactivado.` });
-      }
-
-      if (prod.stock < item.quantity) {
-        await t.rollback();
-        return res.status(400).json({ error: `"${prod.name}" no tiene suficiente stock.` });
-      }
+      return res.status(err.status || 400).json({ error: err.message });
     }
 
     // Calcular total
