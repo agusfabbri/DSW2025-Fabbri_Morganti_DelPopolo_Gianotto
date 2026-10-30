@@ -9,7 +9,7 @@
 
 
 ### Repositorios
-* [**Backend**]([https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto/tree/b7e8dea9a41c1dfab446a9274646e03ab7b4647b/backend))
+* [**Backend**](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto/tree/b7e8dea9a41c1dfab446a9274646e03ab7b4647b/backend)
 * [**Frontend**](https://github.com/agusfabbri/DSW2025-Fabbri-Morganti-DelPopolo-Gianotto-Frontend)
   
 ### Deploy
