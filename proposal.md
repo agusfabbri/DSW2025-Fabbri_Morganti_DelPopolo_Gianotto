@@ -9,17 +9,17 @@
 
 
 ### Repositorios
-* [**Backend**](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto/tree/b7e8dea9a41c1dfab446a9274646e03ab7b4647b/backend)
-* [**Frontend**](https://github.com/agusfabbri/DSW2025-Fabbri-Morganti-DelPopolo-Gianotto-Frontend)
+* **Backend: **[Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto/tree/b7e8dea9a41c1dfab446a9274646e03ab7b4647b/backend)
+* **Frontend: **[Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri-Morganti-DelPopolo-Gianotto-Frontend)
   
 ### Deploy
 * **Backend API:** [https://dsw2025-fabbri-morganti-delpopolo.onrender.com](https://dsw2025-fabbri-morganti-delpopolo.onrender.com)
-* **Frontend:** *(A completar cuando se suba el cliente)*
+* **Frontend:** [https://dsw2025-ecommerce-frontend.vercel.app/](https://dsw2025-ecommerce-frontend.vercel.app/)
 
 #### Credenciales de Prueba (Para Corrección)
-* **Usuario Admin:** `admin@example.com`
-* **Contraseña:** `admin123`
-*(Reemplazar o confirmar estas credenciales según los seeders reales de la base de datos).*
+* **Usuario Admin:** `verito@gmail.com`
+* **Contraseña:** `123456`
+
 
 ## Tema
 ### Descripción
@@ -36,7 +36,7 @@ Desde el lado del administrador (vendedor), el sistema permitirá gestionar el c
 |Req|Detalle|
 |:-|:-|
 |CRUD simple |1. CRUD Producto<br>2. CRUD Categoria<br>3. CRUD Usuario|
-|CRUD dependiente |1. CRUD Peduido (depende de) CRUD Usuario<br>2. CRUD Detalle de pedido (depende de) CRUD Producto|
+|CRUD dependiente |1. CRUD Pedido (depende de) CRUD Usuario<br>2. CRUD Detalle de pedido (depende de) CRUD Producto|
 |Listado<br>+<br>detalle |1. Listado de productos filtrado por categoría o nombre, muestra nombre, precio, stock ⇒ detalle CRUD Producto<br>2. Listado de pedidos filtrado por usuario, muestra número de pedido, fecha, total ⇒ detalle muestra datos completos del pedido y productos incluidos|
 |CUU/Epic|1. Agregar productos al carrito y realizar una compra<br>2. Visualizar historial de compras|
 
