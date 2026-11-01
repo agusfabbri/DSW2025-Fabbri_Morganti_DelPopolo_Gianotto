@@ -5,15 +5,14 @@
 * 52901 - Morganti, Candela
 * 53497 - Fabbri, Agustin Leonel
 * 49941 - Del Popolo, Chiara
-* 49853 - Gianotto, Leandro
 
 
 ### Repositorios
-* **Backend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo_Gianotto/tree/b7e8dea9a41c1dfab446a9274646e03ab7b4647b/backend)
-* **Frontend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri-Morganti-DelPopolo-Gianotto-Frontend)
+* **Backend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo/tree/b7e8dea9a41c1dfab446a9274646e03ab7b4647b/backend)
+* **Frontend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri-Morganti-DelPopolo-Frontend.git)
   
 ### Deploy
-* **Backend API:** [https://dsw2025-fabbri-morganti-delpopolo.onrender.com](https://dsw2025-fabbri-morganti-delpopolo.onrender.com)
+* **Backend API:** [https://dsw2025-fabbri-morganti-delpopolo.onrender.com](https://dsw2025-fabbri-morganti-delpopolo-hq0q.onrender.com/)
 * **Frontend:** [https://dsw2025-ecommerce-frontend.vercel.app/](https://dsw2025-ecommerce-frontend.vercel.app/)
 
 #### Credenciales de Prueba (Para Corrección)
