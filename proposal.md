@@ -8,7 +8,7 @@
 
 
 ### Repositorios
-* **Backend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo/tree/b7e8dea9a41c1dfab446a9274646e03ab7b4647b/backend)
+* **Backend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri_Morganti_DelPopolo.git)
 * **Frontend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri-Morganti-DelPopolo-Frontend.git)
   
 ### Deploy
