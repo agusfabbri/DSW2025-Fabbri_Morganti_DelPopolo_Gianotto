@@ -12,7 +12,7 @@
 * **Frontend:** [Click aquí](https://github.com/agusfabbri/DSW2025-Fabbri-Morganti-DelPopolo-Frontend.git)
   
 ### Deploy
-* **Backend API:** [https://dsw2025-fabbri-morganti-delpopolo.onrender.com](https://dsw2025-fabbri-morganti-delpopolo-hq0q.onrender.com/)
+* **Backend API:** [https://dsw2025-fabbri-morganti-delpopolo-hq0q.onrender.com](https://dsw2025-fabbri-morganti-delpopolo-hq0q.onrender.com/)
 * **Frontend:** [https://dsw2025-ecommerce-frontend.vercel.app/](https://dsw2025-ecommerce-frontend.vercel.app/)
 
 #### Credenciales de Prueba (Para Corrección)
