@@ -19,5 +19,5 @@ Bienvenido al directorio de documentación. Aquí se detallarán aspectos funcio
 5. **[Instrucciones de Instalación y Ejecución](../README.md#%EF%B8%8F-instrucciones-de-instalaci%C3%B3n-y-ejecuci%C3%B3n-backend)**  
    Guía sobre cómo instalar y levantar el entorno de desarrollo local referenciada desde el documento raíz.
 
-6. **[Despliegue del Proyecto (Deploy)](https://dsw2025-fabbri-morganti-delpopolo-hq0q.onrender.com)**  
+6. **[Despliegue del Proyecto (Deploy)](https://dsw2025-fabbri-morganti-delpopolo-hq0q.onrender.com/)**  
    Enlace a la API desplegada en producción.
