@@ -22,7 +22,7 @@
 
 ## Tema
 ### Descripción
-El proyecto es un sistema de e-commerce de tecnología donde los usuarios pueden registrarse, iniciar sesión, explorar productos organizados en distintas categorías (como celulares, computadoras y accesorios), agregar artículos al carrito, realizar compras y hacer seguimiento del estado de sus pedidos. Cada producto contará con información básica como nombre, precio, descripción, imagen y disponibilidad de stock. Además, los usuarios podrán dejar reseñas y calificaciones en los productos que hayan comprado. El pago de las compras se realizará a través de la pasarela de pago Mercado Pago, lo que brinda una solución segura y práctica para el usuario.
+El proyecto es un sistema de e-commerce de tecnología donde los usuarios pueden registrarse, iniciar sesión, explorar productos organizados en distintas categorías (como celulares, computadoras y accesorios), agregar artículos al carrito, realizar compras y hacer seguimiento del estado de sus pedidos. Cada producto contará con información básica como nombre, precio, descripción, imagen y disponibilidad de stock. Además, los usuarios podrán dejar reseñas y calificaciones en los productos que hayan comprado. El pago de las compras se realizará a través de la pasarela de pago Stripe, lo que brinda una solución segura y práctica para el usuario.
 Desde el lado del administrador (vendedor), el sistema permitirá gestionar el catálogo de productos, actualizar stock y administrar los pedidos recibidos, cambiando su estado según el avance (por ejemplo: pendiente, enviado, entregado). 
 
 ### Modelo
